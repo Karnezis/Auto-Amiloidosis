@@ -7,7 +7,7 @@ traindata_dir = os.path.join(local_dir_path, 'PS-Amiloidosis', 'train') # Crio o
 valdata_dir = os.path.join(local_dir_path, 'PS-Amiloidosis', 'validation') # Crio o caminho de validação
 
 # ---------------- PERSONALIZÁVEL ----------------
-batch_size = 32 # Tamanho do Batch
+batch_size = 16 #32 # Tamanho do Batch
 img_height = 244 # Altura da Imagem
 img_width = 244 # Largura da Imagem
 
@@ -31,12 +31,29 @@ test_data = ak.image_dataset_from_directory(
     image_size=(img_height, img_width), # Redimensiona as imagens
     batch_size=batch_size) # Batch size né '-'
 
+# Classe de classificação de imagem do AutoKeras
 clf = ak.ImageClassifier(overwrite=True, # Sobrescreve um projeto existente com o mesmo nome se algum for encontrado.
     project_name='AutoAmiloidosis', # Nome do projeto (fica bonito)
-    max_trials=1) # O número máximo de diferentes modelos Keras para tentar
-clf.fit(train_data, epochs=1)
-print(clf.evaluate(test_data))
+    max_trials=1, # O número máximo de diferentes modelos Keras para tentar
+    metrics=[tf.keras.metrics.Accuracy(), # Lista de Métricas a Serem Avaliadas
+    tf.keras.metrics.BinaryAccuracy(),
+    tf.keras.metrics.AUC(),
+    tf.keras.metrics.Precision(),
+    tf.keras.metrics.Recall(),
+    tf.keras.metrics.FalsePositives(),
+    tf.keras.metrics.FalseNegatives()])
 
-# Export as a Keras Model.
+# Método de Treino
+clf.fit(train_data, # Dados de Treino
+    epochs=1) # Número inteiro de épocas
+
+# Avaliação da Rede
+arq = open("validation.txt","w+")
+# Avalia o desempenho da rede no dataset de validação
+nota = "[Loss, Accuracy, BinaryAccuracy, AUC, Precision, Recall, FalsePositives, FalseNegatives]" + str(clf.evaluate(test_data))
+arq.write(nota)
+arq.close()
+
+# Exporta o melhor modelo em formato Keras
 model = clf.export_model()
 model.save("model_autoamiloidosis.h5")

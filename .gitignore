@@ -126,3 +126,9 @@ dmypy.json
 
 # Dataset
 /PS-Amiloidosis
+
+# Auto Keras
+/AutoAmiloidosis
+/structured_data_classifier
+model_autoamiloidosis.h5
+validation.txt
