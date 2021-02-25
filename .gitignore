@@ -125,6 +125,7 @@ dmypy.json
 .pyre/
 
 # Dataset
+/.vscode
 /PS-Amiloidosis
 
 # Auto Keras
