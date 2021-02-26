@@ -7,7 +7,7 @@ traindata_dir = os.path.join(local_dir_path, 'PS-Amiloidosis', 'train') # Crio o
 valdata_dir = os.path.join(local_dir_path, 'PS-Amiloidosis', 'validation') # Crio o caminho de validação
 
 # ---------------- PERSONALIZÁVEL ----------------
-batch_size = 16 #32 # Tamanho do Batch
+batch_size = 16 #32 # MUDAR # Tamanho do Batch
 img_height = 244 # Altura da Imagem
 img_width = 244 # Largura da Imagem
 
@@ -34,7 +34,7 @@ test_data = ak.image_dataset_from_directory(
 # Classe de classificação de imagem do AutoKeras
 clf = ak.ImageClassifier(overwrite=True, # Sobrescreve um projeto existente com o mesmo nome se algum for encontrado.
     project_name='AutoAmiloidosis', # Nome do projeto (fica bonito)
-    max_trials=1, # O número máximo de diferentes modelos Keras para tentar
+    max_trials=1, # O número máximo de diferentes modelos Keras para tentar # MUDAR
     metrics=[tf.keras.metrics.Accuracy(), # Lista de Métricas a Serem Avaliadas
     tf.keras.metrics.BinaryAccuracy(),
     tf.keras.metrics.AUC(),
@@ -45,7 +45,7 @@ clf = ak.ImageClassifier(overwrite=True, # Sobrescreve um projeto existente com 
 
 # Método de Treino
 clf.fit(train_data, # Dados de Treino
-    epochs=1) # Número inteiro de épocas
+    epochs=1) # Número inteiro de épocas # MUDAR
 
 # Avaliação da Rede
 arq = open("validation.txt","w+")

@@ -30,3 +30,9 @@ Estando no terminal integrado do container com o host execute o comando
 ``` bash
 python example.py
 ```
+
+## Copiar Arquivos do Docker para o Host
+
+``` bash
+sudo docker cp {{Image ID}}:/usr/src/app/validation.txt {{Absolute Path}}
+```
