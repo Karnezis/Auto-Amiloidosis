@@ -29,7 +29,7 @@ test_data = ak.image_dataset_from_directory(
     #subset="validation",
     seed=123, # Dá um shuffle na ordem de pegar as imagens
     image_size=(img_height, img_width), # Redimensiona as imagens
-    batch_size=batch_size) # Batch size né '-'
+    batch_size=8) # Batch size adaptado para a GPU do LACAD
 
 # Classe de classificação de imagem do AutoKeras
 clf = ak.ImageClassifier(overwrite=True, # Sobrescreve um projeto existente com o mesmo nome se algum for encontrado.

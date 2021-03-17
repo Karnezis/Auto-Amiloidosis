@@ -19,14 +19,17 @@ from tensorflow.keras.callbacks import TensorBoard
     Cheque se a base de dados onde o cross validation irá operar é a PathoSpotter 80-20.
     Cheque se o arquivo 'training_labels.csv' existe na mesma pasta que o script.
 '''
+# --------------------------Gambiarra do LACAD---------------------------
+
+physical_devices = tf.config.list_physical_devices('GPU') 
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 # ------------------------Dados de Configuração--------------------------
 
 # Onde se deve buscar as imagens para o treino
 train_image_dir = 'PS-Amiloidosis/train/'
 test_image_dir = 'PS-Amiloidosis/validation/'
-num_epochs = 1  # Número de Épocas # MUDAR
-n = 1540  # Número de imagens que você vai dar ao algoritmo
+num_epochs = 1 # 100 # Número de Épocas # MUDAR
 
 # --------------------------Criação de Modelo----------------------------
 
@@ -40,7 +43,7 @@ def create_new_model():
     # Colocando o modelo em inferência
     x = base_model(base_model.input, training=False)
     # Um classificador denso com várias classes
-    predictions = Dense(6, activation='softmax')(x)  # PathoSpotter
+    predictions = Dense(1, activation='sigmoid')(x)  # PathoSpotter-Amiloidosis
     # Instanciando o novo modelo a ser treinado
     model = Model(inputs=base_model.input, outputs=predictions)
     # Mostrando o modelo
@@ -74,7 +77,7 @@ idg = ImageDataGenerator(rotation_range=20,
 
 # Função auxiliar que retorna o nome do modelo de acordo com seu fold
 def get_model_name(k):
-    return 'model_'+str(k)+'.h5'
+    return 'XceptionAmiloidosis_'+str(k)+'.h5'
 
 
 # Métricas de desempenho dos K folds
@@ -159,8 +162,6 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
                         validation_data=valid_data_generator,
                         validation_steps=valid_data_generator.n//valid_data_generator.batch_size)
     #print("Acabou o treinamento.")
-    # Desaloca o Monitor
-    #monitor.stop()
     # Salva o modelo para que tenha-se acesso posteriormente
     file_path = get_model_name(fold_var)
     model.save(file_path)
