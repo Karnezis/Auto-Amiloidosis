@@ -133,3 +133,5 @@ dmypy.json
 /structured_data_classifier
 model_autoamiloidosis.h5
 validation.txt
+/transferenv
+/logs
