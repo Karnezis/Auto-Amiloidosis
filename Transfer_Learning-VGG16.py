@@ -76,7 +76,7 @@ idg = ImageDataGenerator(rotation_range=20,
 
 # Função auxiliar que retorna o nome do modelo de acordo com seu fold
 def get_model_name(k):
-    return 'XceptionAmiloidosis_'+str(k)+'.h5'
+    return 'VGG16Amiloidosis_'+str(k)+'.h5'
 
 
 # Métricas de desempenho dos K folds
