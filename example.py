@@ -2,12 +2,15 @@ import autokeras as ak # Importa o AutoKeras
 import tensorflow as tf # Importa o TensorFlow
 import os # Importa o sistema para lidar com arquivos
 
+physical_devices = tf.config.list_physical_devices('GPU') 
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 local_dir_path = os.path.dirname(os.path.abspath(__file__)) # Pego o caminho absoluto do diretório
 traindata_dir = os.path.join(local_dir_path, 'PS-Amiloidosis', 'train') # Crio o caminho de treino
 valdata_dir = os.path.join(local_dir_path, 'PS-Amiloidosis', 'validation') # Crio o caminho de validação
 
 # ---------------- PERSONALIZÁVEL ----------------
-batch_size = 16 #32 # MUDAR # Tamanho do Batch
+batch_size = 32 # MUDAR # Tamanho do Batch
 img_height = 244 # Altura da Imagem
 img_width = 244 # Largura da Imagem
 
@@ -29,12 +32,12 @@ test_data = ak.image_dataset_from_directory(
     #subset="validation",
     seed=123, # Dá um shuffle na ordem de pegar as imagens
     image_size=(img_height, img_width), # Redimensiona as imagens
-    batch_size=8) # Batch size adaptado para a GPU do LACAD
+    batch_size=batch_size) # Batch size né '-'
 
 # Classe de classificação de imagem do AutoKeras
 clf = ak.ImageClassifier(overwrite=True, # Sobrescreve um projeto existente com o mesmo nome se algum for encontrado.
     project_name='AutoAmiloidosis', # Nome do projeto (fica bonito)
-    max_trials=1, # O número máximo de diferentes modelos Keras para tentar # MUDAR
+    max_trials=15, # O número máximo de diferentes modelos Keras para tentar # MUDAR
     metrics=[tf.keras.metrics.Accuracy(), # Lista de Métricas a Serem Avaliadas
     tf.keras.metrics.BinaryAccuracy(),
     tf.keras.metrics.AUC(),
@@ -45,7 +48,7 @@ clf = ak.ImageClassifier(overwrite=True, # Sobrescreve um projeto existente com 
 
 # Método de Treino
 clf.fit(train_data, # Dados de Treino
-    epochs=1) # Número inteiro de épocas # MUDAR
+    epochs=200) # Número inteiro de épocas # MUDAR
 
 # Avaliação da Rede
 arq = open("validation.txt","w+")
@@ -57,3 +60,6 @@ arq.close()
 # Exporta o melhor modelo em formato Keras
 model = clf.export_model()
 model.save("model_autoamiloidosis.h5")
+
+# Desliga o PC
+os.system('shutdown -s')

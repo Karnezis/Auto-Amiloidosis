@@ -29,7 +29,7 @@ tf.config.experimental.set_memory_growth(physical_devices[0], True)
 # Onde se deve buscar as imagens para o treino
 train_image_dir = 'PS-Amiloidosis/train/'
 test_image_dir = 'PS-Amiloidosis/validation/'
-num_epochs = 1 # 100 # Número de Épocas # MUDAR
+num_epochs = 150 # 100 # Número de Épocas # MUDAR
 
 # --------------------------Criação de Modelo----------------------------
 
@@ -43,7 +43,7 @@ def create_new_model():
     # Colocando o modelo em inferência
     x = base_model(base_model.input, training=False)
     # Um classificador denso com várias classes
-    predictions = Dense(1, activation='sigmoid')(x)  # PathoSpotter-Amiloidosis
+    predictions = Dense(2, activation='softmax')(x)  # PathoSpotter-Amiloidosis
     # Instanciando o novo modelo a ser treinado
     model = Model(inputs=base_model.input, outputs=predictions)
     # Mostrando o modelo
@@ -106,7 +106,7 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
                                                    directory=train_image_dir,
                                                    x_col="filename",
                                                    y_col="label",
-                                                   batch_size=23,
+                                                   batch_size=32,
                                                    seed=42,
                                                    class_mode="categorical",
                                                    shuffle=True)
@@ -158,6 +158,7 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
                         batch_size=32,
                         steps_per_epoch=train_data_generator.n//train_data_generator.batch_size,
                         epochs=num_epochs,
+                        verbose=2,
                         callbacks=callbacks_list,
                         validation_data=valid_data_generator,
                         validation_steps=valid_data_generator.n//valid_data_generator.batch_size)
@@ -172,7 +173,7 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
     # Guarda os resultados
     results = dict(zip(model.metrics_names, results))
     # Coloca os resultados no histórico
-    VALIDATION_ACCURACY.append(results['accuracy'])
+    VALIDATION_ACCURACY.append(results['categorical_accuracy'])
     VALIDATION_LOSS.append(results['loss'])
 
     fold_var += 1

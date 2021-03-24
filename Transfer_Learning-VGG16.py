@@ -42,7 +42,7 @@ def create_new_model():
     # Colocando o modelo em inferência
     x = base_model(base_model.input, training=False)
     # Um classificador denso com várias classes
-    predictions = Dense(1, activation='sigmoid')(x)  # PathoSpotter
+    predictions = Dense(2, activation='softmax')(x)  # PathoSpotter-Amiloidosis
     # Instanciando o novo modelo a ser treinado
     model = Model(inputs=base_model.input, outputs=predictions)
     # Mostrando o modelo
@@ -105,7 +105,7 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
                                                    directory=train_image_dir,
                                                    x_col="filename",
                                                    y_col="label",
-                                                   batch_size=23,
+                                                   batch_size=32,
                                                    seed=42,
                                                    class_mode="categorical",
                                                    shuffle=True)
@@ -171,7 +171,7 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
     # Guarda os resultados
     results = dict(zip(model.metrics_names, results))
     # Coloca os resultados no histórico
-    VALIDATION_ACCURACY.append(results['accuracy'])
+    VALIDATION_ACCURACY.append(results['categorical_accuracy'])
     VALIDATION_LOSS.append(results['loss'])
 
     fold_var += 1
