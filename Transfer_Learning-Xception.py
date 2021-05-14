@@ -43,7 +43,7 @@ def create_new_model():
     # Colocando o modelo em inferência
     x = base_model(base_model.input, training=False)
     # Um classificador denso com várias classes
-    predictions = Dense(2, activation='softmax')(x)  # PathoSpotter-Amiloidosis
+    predictions = Dense(1, activation='sigmoid')(x)  # PathoSpotter-Amiloidosis
     # Instanciando o novo modelo a ser treinado
     model = Model(inputs=base_model.input, outputs=predictions)
     # Mostrando o modelo
@@ -134,15 +134,16 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
 
     # Compilação do novo modelo, com o otimizador RMSprop
     opt = tf.keras.optimizers.RMSprop(learning_rate=0.0005)
-    model.compile(loss='categorical_crossentropy',
+    model.compile(loss='binary_crossentropy',
                   optimizer=opt,
                   metrics=[tf.keras.metrics.Accuracy(),
-                           tf.keras.metrics.CategoricalAccuracy(),
                            tf.keras.metrics.AUC(),
                            tf.keras.metrics.Precision(),
                            tf.keras.metrics.Recall(),
                            tf.keras.metrics.FalsePositives(),
-                           tf.keras.metrics.FalseNegatives()])
+                           tf.keras.metrics.FalseNegatives(),
+                           tf.keras.metrics.TruePositives(),
+                           tf.keras.metrics.TrueNegatives()])
 
     # Criação dos callbacks
     # Faz com que o TensorBoard tenha acesso aos dados de treinamento para visualização
