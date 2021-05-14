@@ -3,6 +3,7 @@ import pandas as pd
 import datetime  # Auxilia nos logs
 import os
 from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import roc_curve
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 # Camadas: Densa, Pooling Médio
@@ -12,6 +13,7 @@ from tensorflow.keras.models import Model  # Classe Model
 from tensorflow.keras.applications.inception_v3 import preprocess_input, InceptionV3
 # Para melhor observar os logs, utiliza-se o TensorBoard
 from tensorflow.keras.callbacks import TensorBoard
+from matplotlib import pyplot as plt
 
 '''
             LEMBRETES
@@ -20,15 +22,15 @@ from tensorflow.keras.callbacks import TensorBoard
 '''
 # --------------------------Gambiarra do LACAD---------------------------
 
-physical_devices = tf.config.list_physical_devices('GPU') 
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
+#physical_devices = tf.config.list_physical_devices('GPU') 
+#tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 # ------------------------Dados de Configuração--------------------------
 
 # Onde se deve buscar as imagens para o treino
 train_image_dir = 'PS-Amiloidosis/train/'
 test_image_dir = 'PS-Amiloidosis/validation/'
-num_epochs = 1  # 100 # Número de Épocas # MUDAR
+num_epochs = 1  # 200 # Número de Épocas # MUDAR
 
 # --------------------------Criação de Modelo----------------------------
 
@@ -71,6 +73,8 @@ idg = ImageDataGenerator(rotation_range=20,
                          horizontal_flip=True,
                          fill_mode='nearest',
                          preprocessing_function=preprocess_input)
+
+testidg = ImageDataGenerator(preprocessing_function=preprocess_input)
 
 # --------------------------Cross Validation-----------------------------
 
@@ -117,14 +121,14 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
                                                    seed=42,
                                                    class_mode="categorical",
                                                    shuffle=True)
-    test_generator = idg.flow_from_dataframe(dataframe=test_data,
+    test_generator = testidg.flow_from_dataframe(dataframe=test_data,
                                              directory=test_image_dir,
                                              x_col="filename",
                                              y_col="label",
                                              batch_size=11,
                                              seed=42,
                                              class_mode="categorical",
-                                             shuffle=True)
+                                             shuffle=False)
 
     # ------------------------Transfer Learning--------------------------
 
@@ -166,14 +170,30 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
     file_path = get_model_name(fold_var)
     model.save(file_path)
     # Avalia o modelo nos exemplos de teste
+    filenames = test_generator.filenames
+    nb_samples = len(filenames)
     results = model.evaluate(x=test_generator,
-                        steps=12,
+                        steps=nb_samples,
                         callbacks=callbacks_list)
     # Guarda os resultados
     results = dict(zip(model.metrics_names, results))
     # Coloca os resultados no histórico
     VALIDATION_ACCURACY.append(results['categorical_accuracy'])
     VALIDATION_LOSS.append(results['loss'])
+    # Plotando a curva ROC
+    y_pred_keras = model.predict(test_generator, steps=nb_samples).ravel()
+    y_test = test_generator.classes
+    fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_test, y_pred_keras)
+    
+    plt.figure(1)
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.plot(fpr_keras, tpr_keras, label='Keras (area = {:.3f})'.format(auc_keras))
+    plt.xlabel('False positive rate')
+    plt.ylabel('True positive rate')
+    plt.title('ROC curve')
+    plt.legend(loc='best')
+    figname = 'ROC'+str(fold_var)+'.png'
+    plt.savefig(figname)
 
     fold_var += 1
 
