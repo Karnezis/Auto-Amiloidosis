@@ -22,8 +22,8 @@ from matplotlib import pyplot as plt
 '''
 # --------------------------Gambiarra do LACAD---------------------------
 
-# physical_devices = tf.config.list_physical_devices('GPU')
-# tf.config.experimental.set_memory_growth(physical_devices[0], True)
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 # ------------------------Dados de Configuração--------------------------
 
@@ -151,7 +151,7 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
 
     # Criação dos callbacks
     # Faz com que o TensorBoard tenha acesso aos dados de treinamento para visualização
-    log_dir="logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir="logs/InceptionV3/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback=TensorBoard(log_dir=log_dir, histogram_freq=0)
     # Cria a lista de callbacks com o TensorBoard
     callbacks_list=[tensorboard_callback]
@@ -194,7 +194,8 @@ for train_index, val_index in skf.split(np.zeros(len(Y)), Y):
     plt.ylabel('True positive rate')
     plt.title('ROC curve')
     plt.legend(loc='best')
-    figname='ROC'+str(fold_var)+'.png'
+    figname='InceptionV3-ROC'+str(fold_var)+'.png'
     plt.savefig(figname)
+    plt.clf()
 
     fold_var += 1
